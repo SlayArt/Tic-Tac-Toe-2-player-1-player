@@ -1,119 +1,85 @@
+# Initialisation des plateaux
 plateaux = [[".", ".", "."],
-			[".", ".", "."],
-			[".", ".", "."]]
-plateaux_temp = [[".", ".", "."],
-				[".", ".", "."],
-				[".", ".", "."]]
+            [".", ".", "."],
+            [".", ".", "."]]
 
 def joueur1():
-	j1 = "x"
-	list_j1 = input("player1 tell x y : ")
-	res = list_j1.split()
-	res.append(j1)
-	return res
+    j1 = "x"
+    list_j1 = input("Player 1 (x), give coordinates x y: ")
+    res = list_j1.split()
+    res.append(j1)
+    return res
 
 def joueur2():
-	j2 = "o"
-	list_j2 = input("player2 tell x y : ")
-	res = list_j2.split()
-	res.append(j2)
-	return res
+    j2 = "o"
+    list_j2 = input("Player 2 (o), give coordinates x y: ")
+    res = list_j2.split()
+    res.append(j2)
+    return res
 
 def affich(tab):
-	for c in range(len(tab)):
-		for l in range(len(tab[c])):
-			print(tab[c][l],end=" ")
-		print()
+    for row in tab:
+        print(" ".join(row))
+    print()
 
 def verif(plateau):
-	if plateau[0][0] == "x" and plateau[0][1] == "x" and plateau[0][2] == "x":
-		return "j1"
-	elif plateau[0][0] == "o" and plateau[0][1] == "o" and plateau[0][2] == "o":
-		return "j2"
-	elif plateau[1][0] == "x" and plateau[1][1] == "x" and plateau[1][2] == "x":
-		return "j1"
-	elif plateau[1][0] == "o" and plateau[1][1] == "o" and plateau[1][2] == "o":
-		return "j2"
-	elif plateau[2][0] == "x" and plateau[2][1] == "x" and plateau[2][2] == "x":
-		return "j1"
-	elif plateau[2][0] == "o" and plateau[2][1] == "o" and plateau[2][2] == "o":
-		return "j2"
-	elif plateau[0][0] == "x" and plateau[1][1] == "x" and plateau[2][2] == "x":
-		return "j1"
-	elif plateau[0][0] == "o" and plateau[1][1] == "o" and plateau[2][2] == "o":
-		return "j2"
-	elif plateau[0][2] == "x" and plateau[1][1] == "x" and plateau[2][0] == "x":
-		return "j1"
-	elif plateau[0][2] == "o" and plateau[1][1] == "o" and plateau[2][0] == "o":
-		return "j2"
+    # Vérifier les lignes
+    for row in plateau:
+        if row[0] == row[1] == row[2] and row[0] != ".":
+            return "j1" if row[0] == "x" else "j2"
+
+    # Vérifier les colonnes
+    for col in range(3):
+        if plateau[0][col] == plateau[1][col] == plateau[2][col] and plateau[0][col] != ".":
+            return "j1" if plateau[0][col] == "x" else "j2"
+
+    # Vérifier les diagonales
+    if plateau[0][0] == plateau[1][1] == plateau[2][2] and plateau[0][0] != ".":
+        return "j1" if plateau[0][0] == "x" else "j2"
+    if plateau[0][2] == plateau[1][1] == plateau[2][0] and plateau[0][2] != ".":
+        return "j1" if plateau[0][2] == "x" else "j2"
+
+    return None  # Aucun gagnant pour l'instant
 
 def play(tab, x, y, sign):
-	play = False
-	while play == False:
-		if tab[x][y] != ".":
-			print("can't play this position try an other")
-		else:
-			plateaux_temp[x][y] = sign
-			play = True
-	
-	return plateaux_temp
-
-def rounds(tab, idx):
-	plateaux = tab
-	plateaux_temp = plateaux
-	idx = idx
-
-	if idx < 9:
-		joueur1_list = joueur1()
-		x1, y1, sign = int(joueur1_list[0]), int(joueur1_list[1]), joueur1_list[2]
-		plateaux_temp = play(plateaux, x1, y1, sign)
-		affich(plateaux)
-		print("==>")
-		affich(plateaux_temp)
-		plateaux = plateaux_temp
-		verif(plateaux)
-
-		idx += 1
-	else: return False
-
-	if idx < 9:
-		joueur2_list = joueur2()
-		x2, y2, sign = int(joueur2_list[0]), int(joueur2_list[1]), joueur2_list[2]
-		play(plateaux, x2, y2, sign)
-		affich(plateaux)
-		print("==>")
-		affich(plateaux_temp)
-		plateaux = plateaux_temp
-		verif(plateaux)
-
-		idx += 1
-	else: return False
-
-	return plateaux, verif, idx
+    while True:
+        if tab[x][y] != ".":
+            print("Can't play this position, try another.")
+            x, y = map(int, input("Tell new x y: ").split())
+        else:
+            tab[x][y] = sign
+            break
 
 def game(tab):
-	idx = 0
-	while idx < 9:
-		print(idx)
-		rounds(tab, idx)
-		statement = verif(tab)
-		if statement == "j1":
-			print("j1 (x) win ! | End of the Game !")
-			idx = 9
-		elif statement == "j2":
-			print("j2 (o) win ! | End of the Game !")
-			idx = 9
-		elif rounds(tab, idx) == False:
-			print("Draw ! | End of the Game !")
-			idx = 9
-		idx += 1
+    affich(tab)
+    idx = 0
 
+    while idx < 9:
+        # Alternance des joueurs
+        if idx % 2 == 0:
+            joueur_info = joueur1()
+        else:
+            joueur_info = joueur2()
 
-def main_func(tab):
-	affich(tab)
-	idx = 0
-	plateau = tab
-	game(plateau)
+        x, y, sign = int(joueur_info[0]), int(joueur_info[1]), joueur_info[2]
 
-main_func(plateaux)
+        # Jouer le coup
+        play(tab, x, y, sign)
 
+        # Afficher le plateau après chaque coup
+        affich(tab)
+
+        # Vérifier si un joueur a gagné
+        winner = verif(tab)
+        if winner:
+            print(f"{winner} ({'x' if winner == 'j1' else 'o'}) wins! | End of the Game!")
+            return
+
+        idx += 1
+
+    # Si on sort de la boucle, c'est un match nul
+    print("Draw! | End of the Game!")
+
+# Lancer le jeu
+main_plateau = [[".", ".", "."], [".", ".", "."], [".", ".", "."]]
+game(main_plateau)
