@@ -42,13 +42,15 @@ def verif(plateau):
     return None  # Aucun gagnant pour l'instant
 
 def play(tab, x, y, sign):
-    while True:
+    valid = False
+    while not valid:
         if tab[x][y] != ".":
             print("Can't play this position, try another.")
             x, y = map(int, input("Tell new x y: ").split())
         else:
             tab[x][y] = sign
-            break
+            valid = True
+    return tab
 
 def game(tab):
     affich(tab)
